@@ -66,7 +66,7 @@ export default function Home() {
 
       <main className="max-w-md mx-auto">
         {/* Quick Stats */}
-        <section className="px-4 py-4 bg-white border-b border-border">
+        <section className="px-4 py-4 bg-card border-b border-border">
           <div className="grid grid-cols-4 gap-3">
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-primary">{sessionMetrics.strokeCount}</div>
@@ -125,8 +125,8 @@ export default function Home() {
         <TrainingPlanCard />
 
         {/* Recent Sessions */}
-        <section className="mx-4 my-4 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-4 border-b border-gray-100">
+        <section className="mx-4 my-4 bg-card rounded-lg shadow-sm border border-border">
+          <div className="p-4 border-b border-muted">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-neutral">Recent Sessions</h2>
               <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primaryDark">
@@ -134,10 +134,10 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border">
             {recentSessions && recentSessions.length > 0 ? (
               recentSessions.map((session: any) => (
-                <div key={session.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div key={session.id} className="p-4 hover:bg-muted transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-sm font-semibold text-neutral">{session.name}</div>
