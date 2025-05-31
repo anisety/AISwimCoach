@@ -6,7 +6,7 @@ import { SessionControls } from '@/components/session-controls';
 import { PerformanceTrends } from '@/components/performance-trends';
 import { useSession } from '@/hooks/use-session';
 import { useQuery } from '@tanstack/react-query';
-import { WavesLadder, Activity } from 'lucide-react';
+import { Waves, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MOCK_USER_ID = 1;
@@ -20,7 +20,7 @@ export default function Home() {
   // Get recent sessions for history
   const { data: recentSessions } = useQuery({
     queryKey: ['/api/sessions/user', MOCK_USER_ID],
-    select: (data) => data?.slice(0, 3) || []
+    select: (data) => Array.isArray(data) ? data.slice(0, 3) : []
   });
 
   const formatDuration = (seconds: number) => {
@@ -47,7 +47,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <WavesLadder className="w-4 h-4 text-white" />
+                <Waves className="w-4 h-4 text-white" />
               </div>
               <h1 className="text-lg font-semibold text-neutral">StrokeSync</h1>
             </div>

@@ -1,10 +1,3 @@
-import OpenAI from "openai";
-
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
-});
-
 export interface StrokeAnalysisData {
   strokeCount: number;
   avgSpeed: number;
@@ -74,197 +67,390 @@ export interface TrainingPlanResponse {
   }>;
 }
 
+// Generate analysis-based feedback without external AI
 export async function analyzeStrokePerformance(data: StrokeAnalysisData): Promise<AIFeedbackResponse> {
   try {
-    const prompt = `You are an expert swimming coach and performance analyst. Analyze the following stroke performance data and provide detailed feedback:
-
-    Session Summary:
-    - Total Strokes: ${data.strokeCount}
-    - Average Speed: ${data.avgSpeed} m/s
-    - Average Efficiency: ${data.avgEfficiency}%
-    - Average Stroke Rate: ${data.avgRate} SPM
-    - Session Duration: ${Math.floor(data.duration / 60)} minutes
-
-    Recent Performance Data (last 20 data points):
-    ${data.recentData.map((point, i) => 
-      `${i+1}. Speed: ${point.speed}m/s, Efficiency: ${point.efficiency}%, Rate: ${point.rate}SPM`
-    ).join('\n')}
-
-    Please provide:
-    1. Detailed feedback on stroke technique and performance
-    2. Identify 2-3 strength areas and 2-3 improvement areas
-    3. Assess performance trend (improving/stable/declining)
-    4. Provide 3-5 specific, actionable recommendations
-    5. Rate your confidence in this analysis (0-1)
-
-    Respond in JSON format with the structure: {
-      "feedbackText": "detailed analysis...",
-      "insights": {
-        "strengthAreas": ["area1", "area2"],
-        "improvementAreas": ["area1", "area2"],
-        "performanceTrend": "improving|stable|declining",
-        "confidenceLevel": 0.85
-      },
-      "recommendations": [
-        {
-          "type": "technique|training|focus",
-          "priority": "high|medium|low",
-          "description": "specific recommendation",
-          "actionable": true
-        }
-      ],
-      "confidence": 0.85
-    }`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert swimming coach with 20+ years of experience in stroke analysis and performance optimization. Provide detailed, actionable feedback based on performance data."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 1500
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || '{}');
+    // Calculate performance metrics
+    const avgSpeed = data.avgSpeed;
+    const avgEfficiency = data.avgEfficiency;
+    const avgRate = data.avgRate;
+    const strokeCount = data.strokeCount;
     
+    // Determine performance trend based on recent data
+    let performanceTrend: 'improving' | 'stable' | 'declining' = 'stable';
+    if (data.recentData.length >= 10) {
+      const firstHalf = data.recentData.slice(0, Math.floor(data.recentData.length / 2));
+      const secondHalf = data.recentData.slice(Math.floor(data.recentData.length / 2));
+      
+      const firstHalfAvg = firstHalf.reduce((sum, d) => sum + d.efficiency, 0) / firstHalf.length;
+      const secondHalfAvg = secondHalf.reduce((sum, d) => sum + d.efficiency, 0) / secondHalf.length;
+      
+      if (secondHalfAvg > firstHalfAvg + 2) performanceTrend = 'improving';
+      else if (secondHalfAvg < firstHalfAvg - 2) performanceTrend = 'declining';
+    }
+
+    // Generate feedback based on performance metrics
+    let feedbackText = "";
+    const strengthAreas: string[] = [];
+    const improvementAreas: string[] = [];
+    const recommendations: Array<{
+      type: 'technique' | 'training' | 'focus';
+      priority: 'high' | 'medium' | 'low';
+      description: string;
+      actionable: boolean;
+    }> = [];
+
+    // Analyze efficiency
+    if (avgEfficiency >= 85) {
+      strengthAreas.push("stroke efficiency");
+      feedbackText += `Excellent stroke efficiency at ${avgEfficiency.toFixed(1)}%. `;
+    } else if (avgEfficiency >= 75) {
+      feedbackText += `Good stroke efficiency at ${avgEfficiency.toFixed(1)}%. `;
+    } else {
+      improvementAreas.push("stroke efficiency");
+      feedbackText += `Focus needed on stroke efficiency (${avgEfficiency.toFixed(1)}%). `;
+      recommendations.push({
+        type: 'technique',
+        priority: 'high',
+        description: 'Practice distance per stroke drills to improve efficiency',
+        actionable: true
+      });
+    }
+
+    // Analyze speed
+    if (avgSpeed >= 2.0) {
+      strengthAreas.push("swimming speed");
+      feedbackText += `Strong speed performance at ${avgSpeed.toFixed(2)} m/s. `;
+    } else if (avgSpeed >= 1.5) {
+      feedbackText += `Moderate speed at ${avgSpeed.toFixed(2)} m/s. `;
+    } else {
+      improvementAreas.push("swimming speed");
+      feedbackText += `Speed development needed (${avgSpeed.toFixed(2)} m/s). `;
+      recommendations.push({
+        type: 'training',
+        priority: 'medium',
+        description: 'Incorporate sprint intervals to build speed',
+        actionable: true
+      });
+    }
+
+    // Analyze stroke rate
+    if (avgRate >= 35 && avgRate <= 45) {
+      strengthAreas.push("stroke timing");
+      feedbackText += `Optimal stroke rate at ${avgRate.toFixed(0)} SPM. `;
+    } else if (avgRate > 45) {
+      improvementAreas.push("stroke rate control");
+      feedbackText += `Stroke rate is high (${avgRate.toFixed(0)} SPM) - focus on lengthening strokes. `;
+      recommendations.push({
+        type: 'technique',
+        priority: 'medium',
+        description: 'Practice stroke lengthening drills to reduce stroke rate',
+        actionable: true
+      });
+    } else {
+      improvementAreas.push("stroke rate");
+      feedbackText += `Stroke rate is low (${avgRate.toFixed(0)} SPM) - work on tempo. `;
+      recommendations.push({
+        type: 'focus',
+        priority: 'low',
+        description: 'Use a tempo trainer to increase stroke rate gradually',
+        actionable: true
+      });
+    }
+
+    // Add trend-based feedback
+    if (performanceTrend === 'improving') {
+      feedbackText += "Your performance shows positive improvement throughout the session - keep up the excellent work!";
+    } else if (performanceTrend === 'declining') {
+      feedbackText += "Performance declined slightly during the session - consider pacing adjustments.";
+      recommendations.push({
+        type: 'training',
+        priority: 'medium',
+        description: 'Focus on maintaining consistent effort throughout longer sessions',
+        actionable: true
+      });
+    } else {
+      feedbackText += "Performance remained consistent throughout the session.";
+    }
+
+    // Ensure we have at least some recommendations
+    if (recommendations.length === 0) {
+      recommendations.push({
+        type: 'focus',
+        priority: 'low',
+        description: 'Continue maintaining current technique and gradually increase training volume',
+        actionable: true
+      });
+    }
+
     return {
-      feedbackText: result.feedbackText || "Analysis completed successfully.",
+      feedbackText,
       insights: {
-        strengthAreas: result.insights?.strengthAreas || [],
-        improvementAreas: result.insights?.improvementAreas || [],
-        performanceTrend: result.insights?.performanceTrend || 'stable',
-        confidenceLevel: result.insights?.confidenceLevel || 0.7
+        strengthAreas,
+        improvementAreas,
+        performanceTrend,
+        confidenceLevel: 0.85
       },
-      recommendations: result.recommendations || [],
-      confidence: result.confidence || 0.7
+      recommendations,
+      confidence: 0.85
     };
   } catch (error) {
     console.error('Error analyzing stroke performance:', error);
-    throw new Error('Failed to analyze stroke performance: ' + (error as Error).message);
+    
+    // Return fallback feedback
+    return {
+      feedbackText: "Session completed successfully. Continue focusing on stroke technique and maintain consistent training.",
+      insights: {
+        strengthAreas: ["consistency"],
+        improvementAreas: ["technique refinement"],
+        performanceTrend: 'stable',
+        confidenceLevel: 0.7
+      },
+      recommendations: [{
+        type: 'technique',
+        priority: 'medium',
+        description: 'Focus on maintaining consistent stroke technique throughout your sessions',
+        actionable: true
+      }],
+      confidence: 0.7
+    };
   }
 }
 
 export async function generateTrainingPlan(request: TrainingPlanRequest): Promise<TrainingPlanResponse> {
   try {
-    const prompt = `You are an expert swimming coach. Generate a personalized training plan based on the following athlete data:
+    const { currentPerformance, goals, timeframe } = request;
+    
+    // Generate plan based on current performance and goals
+    const isEfficiencyFocused = (goals.targetEfficiency || 85) > currentPerformance.avgEfficiency;
+    const isSpeedFocused = (goals.targetSpeed || 2.0) > currentPerformance.avgSpeed;
+    
+    let title = "Balanced Training Plan";
+    let description = "A comprehensive training plan designed to improve overall swimming performance.";
+    let exercises: Array<{
+      name: string;
+      description: string;
+      sets: number;
+      reps: string;
+      intensity: string;
+      focus: string;
+    }> = [];
 
-    Current Performance:
-    - Average Efficiency: ${request.currentPerformance.avgEfficiency}%
-    - Average Speed: ${request.currentPerformance.avgSpeed} m/s
-    - Recent Sessions: ${request.currentPerformance.sessionCount}
-    - Improvement Trend: ${request.currentPerformance.improvementTrend > 0 ? 'Positive' : 'Needs Work'}
-
-    Goals:
-    - Target Efficiency: ${request.goals.targetEfficiency || 'Maintain current'}%
-    - Target Speed: ${request.goals.targetSpeed || 'Maintain current'} m/s
-    - Focus Areas: ${request.goals.focusAreas?.join(', ') || 'General improvement'}
-    - Timeframe: ${request.timeframe}
-
-    Generate a comprehensive training plan that includes:
-    1. A motivating title and description
-    2. Specific performance goals
-    3. 4-6 targeted exercises with sets, reps, and intensity
-    4. Adaptive strategies based on performance conditions
-
-    Respond in JSON format with this structure: {
-      "title": "plan title",
-      "description": "motivating description",
-      "goals": {
-        "targetEfficiency": 90,
-        "targetSpeed": 2.5,
-        "focusAreas": ["stroke length", "timing"]
-      },
-      "exercises": [
+    if (isEfficiencyFocused && isSpeedFocused) {
+      title = "Speed & Efficiency Development";
+      description = "Focused training to improve both stroke efficiency and swimming speed through targeted drills.";
+      exercises = [
         {
-          "name": "exercise name",
-          "description": "detailed description",
-          "sets": 4,
-          "reps": "50m",
-          "intensity": "75% effort",
-          "focus": "stroke technique"
-        }
-      ],
-      "adaptations": [
-        {
-          "condition": "if efficiency drops below 80%",
-          "adjustment": "reduce intensity by 10%",
-          "reasoning": "prevent fatigue-induced technique breakdown"
-        }
-      ]
-    }`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a world-class swimming coach with expertise in performance optimization and adaptive training methodologies. Create training plans that are challenging yet achievable."
+          name: "Distance Per Stroke",
+          description: "Focus on maximizing distance with each stroke",
+          sets: 4,
+          reps: "50m",
+          intensity: "70% effort",
+          focus: "efficiency"
         },
         {
-          role: "user",
-          content: prompt
+          name: "Sprint Intervals",
+          description: "High-intensity speed training",
+          sets: 6,
+          reps: "25m",
+          intensity: "90% effort",
+          focus: "speed"
+        },
+        {
+          name: "Catch-up Drill",
+          description: "Improve stroke timing and length",
+          sets: 3,
+          reps: "100m",
+          intensity: "75% effort",
+          focus: "technique"
+        },
+        {
+          name: "Tempo Sets",
+          description: "Build consistent stroke rate",
+          sets: 4,
+          reps: "75m",
+          intensity: "80% effort",
+          focus: "rhythm"
         }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.8,
-      max_tokens: 2000
-    });
+      ];
+    } else if (isEfficiencyFocused) {
+      title = "Stroke Efficiency Mastery";
+      description = "Technique-focused training to maximize stroke efficiency and distance per stroke.";
+      exercises = [
+        {
+          name: "Single Arm Drill",
+          description: "Develop stroke strength and technique",
+          sets: 6,
+          reps: "25m",
+          intensity: "70% effort",
+          focus: "technique"
+        },
+        {
+          name: "Fist Swimming",
+          description: "Improve catch and feel for water",
+          sets: 4,
+          reps: "50m",
+          intensity: "75% effort",
+          focus: "efficiency"
+        },
+        {
+          name: "Distance Per Stroke",
+          description: "Maximize distance with minimum strokes",
+          sets: 4,
+          reps: "100m",
+          intensity: "70% effort",
+          focus: "efficiency"
+        },
+        {
+          name: "Bilateral Breathing",
+          description: "Improve stroke balance and rhythm",
+          sets: 5,
+          reps: "50m",
+          intensity: "75% effort",
+          focus: "technique"
+        }
+      ];
+    } else if (isSpeedFocused) {
+      title = "Speed Development Program";
+      description = "High-intensity training designed to build speed and power through sprint work.";
+      exercises = [
+        {
+          name: "Sprint Sets",
+          description: "Maximum speed training",
+          sets: 8,
+          reps: "25m",
+          intensity: "95% effort",
+          focus: "speed"
+        },
+        {
+          name: "Race Pace Training",
+          description: "Maintain target race speed",
+          sets: 4,
+          reps: "100m",
+          intensity: "85% effort",
+          focus: "pace"
+        },
+        {
+          name: "Power Starts",
+          description: "Explosive start and underwater training",
+          sets: 6,
+          reps: "15m",
+          intensity: "100% effort",
+          focus: "power"
+        },
+        {
+          name: "Broken Sets",
+          description: "Short rest intervals to build speed endurance",
+          sets: 3,
+          reps: "200m (50m x 4 with 10s rest)",
+          intensity: "90% effort",
+          focus: "speed endurance"
+        }
+      ];
+    }
 
-    const result = JSON.parse(response.choices[0].message.content || '{}');
-    
     return {
-      title: result.title || "Custom Training Plan",
-      description: result.description || "Personalized training plan for performance improvement.",
+      title,
+      description,
       goals: {
-        targetEfficiency: result.goals?.targetEfficiency || request.goals.targetEfficiency || 85,
-        targetSpeed: result.goals?.targetSpeed || request.goals.targetSpeed || 2.0,
-        focusAreas: result.goals?.focusAreas || request.goals.focusAreas || ["technique", "endurance"]
+        targetEfficiency: goals.targetEfficiency || 85,
+        targetSpeed: goals.targetSpeed || 2.0,
+        focusAreas: goals.focusAreas || ["technique", "endurance"]
       },
-      exercises: result.exercises || [],
-      adaptations: result.adaptations || []
+      exercises,
+      adaptations: [
+        {
+          condition: "if efficiency drops below 80%",
+          adjustment: "reduce intensity by 10%",
+          reasoning: "prevent fatigue-induced technique breakdown"
+        },
+        {
+          condition: "if stroke rate increases above 50 SPM",
+          adjustment: "focus on stroke lengthening",
+          reasoning: "maintain efficiency while building speed"
+        },
+        {
+          condition: "if speed plateaus for 3+ sessions",
+          adjustment: "increase rest intervals or add power exercises",
+          reasoning: "allow recovery for speed development"
+        }
+      ]
     };
   } catch (error) {
     console.error('Error generating training plan:', error);
-    throw new Error('Failed to generate training plan: ' + (error as Error).message);
+    
+    // Return fallback training plan
+    return {
+      title: "Balanced Training Plan",
+      description: "A well-rounded training plan focusing on technique and endurance development.",
+      goals: {
+        targetEfficiency: 85,
+        targetSpeed: 2.0,
+        focusAreas: ["technique", "endurance"]
+      },
+      exercises: [
+        {
+          name: "Freestyle Technique",
+          description: "Focus on proper stroke mechanics",
+          sets: 4,
+          reps: "50m",
+          intensity: "75% effort",
+          focus: "technique"
+        },
+        {
+          name: "Endurance Set",
+          description: "Build cardiovascular fitness",
+          sets: 1,
+          reps: "400m",
+          intensity: "70% effort",
+          focus: "endurance"
+        }
+      ],
+      adaptations: [
+        {
+          condition: "if technique deteriorates",
+          adjustment: "reduce intensity and focus on form",
+          reasoning: "maintain quality over quantity"
+        }
+      ]
+    };
   }
 }
 
 export async function generateQuickFeedback(recentMetrics: { speed: number; efficiency: number; strokeCount: number }): Promise<string> {
   try {
-    const prompt = `As a swimming coach, provide a brief motivational feedback (2-3 sentences) for an athlete with these recent metrics:
-    - Speed: ${recentMetrics.speed} m/s
-    - Efficiency: ${recentMetrics.efficiency}%
-    - Recent Strokes: ${recentMetrics.strokeCount}
+    const { speed, efficiency, strokeCount } = recentMetrics;
     
-    Focus on encouragement and one specific technique tip. Keep it concise and actionable.`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an encouraging swimming coach. Provide brief, motivational feedback with actionable tips."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.9,
-      max_tokens: 150
-    });
-
-    return response.choices[0].message.content || "Great work! Keep maintaining your rhythm and focus on your stroke technique.";
+    const feedbackOptions = [
+      `Great job! Your efficiency of ${efficiency.toFixed(1)}% shows excellent technique. Keep maintaining that smooth stroke rhythm.`,
+      `Nice speed at ${speed.toFixed(2)} m/s! Focus on maintaining this pace while keeping your stroke long and controlled.`,
+      `Strong performance with ${strokeCount} strokes recorded. Remember to engage your core for better body position.`,
+      `Excellent work! Your current pace is building good endurance. Focus on consistent breathing patterns.`,
+      `Good session progress! Try to maintain relaxed shoulders while keeping that strong catch phase.`,
+      `Nice technique development! Keep your head position stable and focus on a high elbow catch.`,
+      `Great stroke count! Work on extending your reach and gliding slightly longer between strokes.`,
+      `Solid performance! Remember to rotate your body for maximum power and efficiency.`,
+      `Nice work maintaining form! Focus on a strong kick to support your stroke rhythm.`,
+      `Excellent consistency! Keep practicing bilateral breathing for better stroke balance.`
+    ];
+    
+    // Select feedback based on performance metrics
+    let selectedFeedback;
+    if (efficiency >= 85) {
+      selectedFeedback = feedbackOptions[0];
+    } else if (speed >= 2.0) {
+      selectedFeedback = feedbackOptions[1];
+    } else if (strokeCount >= 50) {
+      selectedFeedback = feedbackOptions[2];
+    } else {
+      // Rotate through other feedback options based on stroke count
+      const index = (strokeCount % (feedbackOptions.length - 3)) + 3;
+      selectedFeedback = feedbackOptions[index];
+    }
+    
+    return selectedFeedback;
   } catch (error) {
     console.error('Error generating quick feedback:', error);
-    return "Keep up the excellent work! Focus on maintaining consistent stroke timing for optimal performance.";
+    return "Great work! Keep maintaining your rhythm and focus on your stroke technique.";
   }
 }

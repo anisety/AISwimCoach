@@ -75,6 +75,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      email: insertUser.email || null,
       createdAt: new Date()
     };
     this.users.set(id, user);
@@ -103,6 +104,14 @@ export class MemStorage implements IStorage {
     const session: Session = {
       ...insertSession,
       id,
+      userId: insertSession.userId || null,
+      endTime: insertSession.endTime || null,
+      duration: insertSession.duration || null,
+      totalStrokes: insertSession.totalStrokes || null,
+      avgSpeed: insertSession.avgSpeed || null,
+      avgEfficiency: insertSession.avgEfficiency || null,
+      avgRate: insertSession.avgRate || null,
+      notes: insertSession.notes || null,
       isActive: true,
       createdAt: new Date()
     };
@@ -156,6 +165,12 @@ export class MemStorage implements IStorage {
     const data: StrokeData = {
       ...insertData,
       id,
+      sessionId: insertData.sessionId || null,
+      speed: insertData.speed || null,
+      efficiency: insertData.efficiency || null,
+      strokeCount: insertData.strokeCount || null,
+      rate: insertData.rate || null,
+      lapMarker: insertData.lapMarker || null,
       createdAt: new Date()
     };
     this.strokeData.set(id, data);
@@ -180,6 +195,11 @@ export class MemStorage implements IStorage {
     const feedback: AiFeedback = {
       ...insertFeedback,
       id,
+      userId: insertFeedback.userId || null,
+      sessionId: insertFeedback.sessionId || null,
+      insights: insertFeedback.insights || null,
+      recommendations: insertFeedback.recommendations || null,
+      confidence: insertFeedback.confidence || null,
       timestamp: new Date()
     };
     this.aiFeedback.set(id, feedback);
@@ -202,6 +222,12 @@ export class MemStorage implements IStorage {
     const plan: TrainingPlan = {
       ...insertPlan,
       id,
+      userId: insertPlan.userId || null,
+      description: insertPlan.description || null,
+      goals: insertPlan.goals || null,
+      exercises: insertPlan.exercises || null,
+      adaptations: insertPlan.adaptations || null,
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -234,6 +260,12 @@ export class MemStorage implements IStorage {
     const metrics: PerformanceMetrics = {
       ...insertMetrics,
       id,
+      userId: insertMetrics.userId || null,
+      totalStrokes: insertMetrics.totalStrokes || null,
+      avgSpeed: insertMetrics.avgSpeed || null,
+      avgEfficiency: insertMetrics.avgEfficiency || null,
+      sessionCount: insertMetrics.sessionCount || null,
+      improvementScore: insertMetrics.improvementScore || null,
       createdAt: new Date()
     };
     this.performanceMetrics.set(id, metrics);
