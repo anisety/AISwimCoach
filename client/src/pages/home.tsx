@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white shadow-sm border-b border-border sticky top-0 z-50">
         <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -53,10 +53,10 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${sessionMetrics.isActive ? 'bg-success animate-pulse' : 'bg-gray-400'}`}></div>
-                <span className="text-sm text-gray-600">{sessionMetrics.duration}</span>
+                <div className={`w-2 h-2 rounded-full ${sessionMetrics.isActive ? 'bg-success animate-pulse' : 'bg-neutralLight'}`}></div>
+                <span className="text-sm text-neutralLight font-medium">{sessionMetrics.duration}</span>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-neutralLight hover:text-neutral">
                 <Activity className="w-4 h-4" />
               </Button>
             </div>
@@ -66,7 +66,7 @@ export default function Home() {
 
       <main className="max-w-md mx-auto">
         {/* Quick Stats */}
-        <section className="px-4 py-4 bg-white border-b border-gray-200">
+        <section className="px-4 py-4 bg-white border-b border-border">
           <div className="grid grid-cols-4 gap-3">
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-primary">{sessionMetrics.strokeCount}</div>
