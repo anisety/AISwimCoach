@@ -66,23 +66,23 @@ export default function Home() {
 
       <main className="max-w-md mx-auto">
         {/* Quick Stats */}
-        <section className="px-4 py-4 bg-white">
+        <section className="px-4 py-4 bg-white border-b border-gray-200">
           <div className="grid grid-cols-4 gap-3">
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-primary">{sessionMetrics.strokeCount}</div>
-              <div className="text-xs text-gray-500">Strokes</div>
+              <div className="text-xs text-neutralLight font-medium">Strokes</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-secondary">{sessionMetrics.avgSpeed}</div>
-              <div className="text-xs text-gray-500">m/s</div>
+              <div className="text-xs text-neutralLight font-medium">m/s</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-accent">{sessionMetrics.avgEfficiency}%</div>
-              <div className="text-xs text-gray-500">Efficiency</div>
+              <div className="text-xs text-neutralLight font-medium">Efficiency</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-mono font-semibold text-warning">{sessionMetrics.avgRate}</div>
-              <div className="text-xs text-gray-500">SPM</div>
+              <div className="text-xs text-neutralLight font-medium">SPM</div>
             </div>
           </div>
         </section>
@@ -140,22 +140,22 @@ export default function Home() {
                 <div key={session.id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-medium text-neutral">{session.name}</div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm font-semibold text-neutral">{session.name}</div>
+                      <div className="text-xs text-neutralLight font-medium">
                         {new Date(session.startTime).toLocaleDateString()} • {formatDuration(session.duration)}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-semibold text-primary">{session.avgEfficiency || 0}% efficiency</div>
-                      <div className="text-xs text-gray-500">{session.totalStrokes || 0} strokes</div>
+                      <div className="text-xs text-neutralLight font-medium">{session.totalStrokes || 0} strokes</div>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="p-4 text-center text-gray-500">
-                <p className="text-sm">No recent sessions found</p>
-                <p className="text-xs">Start your first training session to see it here</p>
+              <div className="p-4 text-center">
+                <p className="text-sm text-neutral font-medium">No recent sessions found</p>
+                <p className="text-xs text-neutralLight">Start your first training session to see it here</p>
               </div>
             )}
           </div>

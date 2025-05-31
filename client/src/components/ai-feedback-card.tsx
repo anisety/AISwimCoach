@@ -56,11 +56,11 @@ export function AIFeedbackCard({ sessionId }: AIFeedbackCardProps) {
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-neutral mb-2">AI Coach Feedback</h3>
-            <div className="text-sm text-gray-700 leading-relaxed mb-3">
+            <div className="text-sm text-neutral leading-relaxed mb-3">
               {latestFeedback ? (
                 <p>{latestFeedback.feedbackText}</p>
               ) : (
-                <p className="text-gray-500 italic">
+                <p className="text-neutralLight italic">
                   Start a training session to receive personalized AI feedback on your stroke technique and performance.
                 </p>
               )}
@@ -71,16 +71,16 @@ export function AIFeedbackCard({ sessionId }: AIFeedbackCardProps) {
               <div className="mb-3">
                 {latestFeedback.insights.strengthAreas.length > 0 && (
                   <div className="mb-2">
-                    <span className="text-xs font-medium text-green-700">Strengths: </span>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs font-semibold text-success">Strengths: </span>
+                    <span className="text-xs text-neutralLight font-medium">
                       {latestFeedback.insights.strengthAreas.join(', ')}
                     </span>
                   </div>
                 )}
                 {latestFeedback.insights.improvementAreas.length > 0 && (
                   <div>
-                    <span className="text-xs font-medium text-amber-700">Focus Areas: </span>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs font-semibold text-warning">Focus Areas: </span>
+                    <span className="text-xs text-neutralLight font-medium">
                       {latestFeedback.insights.improvementAreas.join(', ')}
                     </span>
                   </div>
@@ -89,7 +89,7 @@ export function AIFeedbackCard({ sessionId }: AIFeedbackCardProps) {
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-neutralLight font-medium">
                 {latestFeedback ? formatTimestamp(latestFeedback.timestamp) : 'No recent feedback'}
               </span>
               <Button
