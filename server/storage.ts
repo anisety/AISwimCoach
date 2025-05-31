@@ -7,6 +7,8 @@ import {
   type TrainingPlan, type InsertTrainingPlan,
   type PerformanceMetrics, type InsertPerformanceMetrics
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, gte, and } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -41,6 +43,155 @@ export interface IStorage {
   // Performance Metrics
   getUserPerformanceMetrics(userId: number, days: number): Promise<PerformanceMetrics[]>;
   createPerformanceMetrics(metrics: InsertPerformanceMetrics): Promise<PerformanceMetrics>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getSession(id: number): Promise<Session | undefined> {
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+    return session || undefined;
+  }
+
+  async getActiveSessions(userId: number): Promise<Session[]> {
+    return await db.select().from(sessions)
+      .where(and(eq(sessions.userId, userId), eq(sessions.isActive, true)));
+  }
+
+  async getUserSessions(userId: number, limit: number = 10): Promise<Session[]> {
+    return await db.select().from(sessions)
+      .where(eq(sessions.userId, userId))
+      .orderBy(desc(sessions.startTime))
+      .limit(limit);
+  }
+
+  async createSession(insertSession: InsertSession): Promise<Session> {
+    const [session] = await db
+      .insert(sessions)
+      .values(insertSession)
+      .returning();
+    return session;
+  }
+
+  async updateSession(id: number, updates: Partial<Session>): Promise<Session | undefined> {
+    const [session] = await db
+      .update(sessions)
+      .set(updates)
+      .where(eq(sessions.id, id))
+      .returning();
+    return session || undefined;
+  }
+
+  async endSession(id: number): Promise<Session | undefined> {
+    const [session] = await db
+      .update(sessions)
+      .set({ isActive: false, endTime: new Date() })
+      .where(eq(sessions.id, id))
+      .returning();
+    return session || undefined;
+  }
+
+  async getSessionStrokeData(sessionId: number): Promise<StrokeData[]> {
+    return await db.select().from(strokeData)
+      .where(eq(strokeData.sessionId, sessionId))
+      .orderBy(desc(strokeData.timestamp));
+  }
+
+  async getRecentStrokeData(sessionId: number, minutes: number): Promise<StrokeData[]> {
+    const cutoff = new Date(Date.now() - minutes * 60 * 1000);
+    return await db.select().from(strokeData)
+      .where(and(eq(strokeData.sessionId, sessionId), gte(strokeData.timestamp, cutoff)))
+      .orderBy(desc(strokeData.timestamp));
+  }
+
+  async addStrokeData(insertData: InsertStrokeData): Promise<StrokeData> {
+    const [data] = await db
+      .insert(strokeData)
+      .values(insertData)
+      .returning();
+    return data;
+  }
+
+  async getSessionAiFeedback(sessionId: number): Promise<AiFeedback[]> {
+    return await db.select().from(aiFeedback)
+      .where(eq(aiFeedback.sessionId, sessionId))
+      .orderBy(desc(aiFeedback.timestamp));
+  }
+
+  async getUserAiFeedback(userId: number, limit: number = 5): Promise<AiFeedback[]> {
+    return await db.select().from(aiFeedback)
+      .where(eq(aiFeedback.userId, userId))
+      .orderBy(desc(aiFeedback.timestamp))
+      .limit(limit);
+  }
+
+  async createAiFeedback(insertFeedback: InsertAiFeedback): Promise<AiFeedback> {
+    const [feedback] = await db
+      .insert(aiFeedback)
+      .values(insertFeedback)
+      .returning();
+    return feedback;
+  }
+
+  async getUserTrainingPlans(userId: number): Promise<TrainingPlan[]> {
+    return await db.select().from(trainingPlans)
+      .where(eq(trainingPlans.userId, userId))
+      .orderBy(desc(trainingPlans.createdAt));
+  }
+
+  async getActiveTrainingPlan(userId: number): Promise<TrainingPlan | undefined> {
+    const [plan] = await db.select().from(trainingPlans)
+      .where(and(eq(trainingPlans.userId, userId), eq(trainingPlans.isActive, true)));
+    return plan || undefined;
+  }
+
+  async createTrainingPlan(insertPlan: InsertTrainingPlan): Promise<TrainingPlan> {
+    const [plan] = await db
+      .insert(trainingPlans)
+      .values(insertPlan)
+      .returning();
+    return plan;
+  }
+
+  async updateTrainingPlan(id: number, updates: Partial<TrainingPlan>): Promise<TrainingPlan | undefined> {
+    const [plan] = await db
+      .update(trainingPlans)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(trainingPlans.id, id))
+      .returning();
+    return plan || undefined;
+  }
+
+  async getUserPerformanceMetrics(userId: number, days: number): Promise<PerformanceMetrics[]> {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    return await db.select().from(performanceMetrics)
+      .where(and(eq(performanceMetrics.userId, userId), gte(performanceMetrics.date, cutoff)))
+      .orderBy(desc(performanceMetrics.date));
+  }
+
+  async createPerformanceMetrics(insertMetrics: InsertPerformanceMetrics): Promise<PerformanceMetrics> {
+    const [metrics] = await db
+      .insert(performanceMetrics)
+      .values(insertMetrics)
+      .returning();
+    return metrics;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -273,4 +424,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

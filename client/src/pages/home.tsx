@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-border sticky top-0 z-50">
+      <header className="bg-card shadow-sm border-b border-border sticky top-0 z-50">
         <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">

@@ -3,39 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: 241 245 249; /* #F1F5F9 */
-  --foreground: 15 23 42; /* #0F172A */
-  --muted: 226 232 240; /* #E2E8F0 */
-  --muted-foreground: 51 65 85; /* #334155 */
-  --popover: 255 255 255; /* #FFFFFF */
-  --popover-foreground: 15 23 42; /* #0F172A */
-  --card: 255 255 255; /* #FFFFFF */
-  --card-foreground: 15 23 42; /* #0F172A */
-  --border: 203 213 225; /* #CBD5E1 */
-  --input: 203 213 225; /* #CBD5E1 */
-  --primary: 12 74 110; /* #0C4A6E */
+  --background: 15 23 42; /* #0F172A - Very dark blue */
+  --foreground: 248 250 252; /* #F8FAFC - Very light text */
+  --muted: 30 41 59; /* #1E293B - Dark muted */
+  --muted-foreground: 148 163 184; /* #94A3B8 - Light muted text */
+  --popover: 30 41 59; /* #1E293B - Dark popover */
+  --popover-foreground: 248 250 252; /* #F8FAFC - Light text */
+  --card: 30 41 59; /* #1E293B - Dark card */
+  --card-foreground: 248 250 252; /* #F8FAFC - Light text */
+  --border: 51 65 85; /* #334155 - Visible borders */
+  --input: 51 65 85; /* #334155 - Dark input */
+  --primary: 59 130 246; /* #3B82F6 - Bright blue */
   --primary-foreground: 248 250 252; /* #F8FAFC */
-  --secondary: 15 118 110; /* #0F766E */
-  --secondary-foreground: 255 255 255; /* #FFFFFF */
-  --accent: 190 18 60; /* #BE123C */
-  --accent-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 34 197 94; /* #22C55E - Bright green */
+  --secondary-foreground: 15 23 42; /* #0F172A */
+  --accent: 239 68 68; /* #EF4444 - Bright red */
+  --accent-foreground: 248 250 252; /* #F8FAFC */
   --destructive: 220 38 38; /* #DC2626 */
   --destructive-foreground: 248 250 252; /* #F8FAFC */
-  --ring: 15 118 204; /* #0F76CC */
+  --ring: 59 130 246; /* #3B82F6 */
   --radius: 0.5rem;
-  --chart-1: 12 74 110; /* #0C4A6E */
-  --chart-2: 15 118 110; /* #0F766E */
-  --chart-3: 190 18 60; /* #BE123C */
-  --chart-4: 67 56 202; /* #4338CA */
-  --chart-5: 30 64 175; /* #1E40AF */
+  --chart-1: 59 130 246; /* #3B82F6 - Bright blue */
+  --chart-2: 34 197 94; /* #22C55E - Bright green */
+  --chart-3: 239 68 68; /* #EF4444 - Bright red */
+  --chart-4: 168 85 247; /* #A855F7 - Bright purple */
+  --chart-5: 245 158 11; /* #F59E0B - Bright orange */
   
   /* Custom colors from design */
-  --neutral: 15 23 42; /* #0F172A */
-  --neutralLight: 51 65 85; /* #334155 */
-  --success: 21 128 61; /* #15803D */
-  --error: 220 38 38; /* #DC2626 */
-  --warning: 67 56 202; /* #4338CA - Purple instead of yellow */
-  --primaryDark: 12 74 110; /* #0C4A6E */
+  --neutral: 248 250 252; /* #F8FAFC - Very light text */
+  --neutralLight: 148 163 184; /* #94A3B8 - Medium light text */
+  --success: 34 197 94; /* #22C55E - Bright green */
+  --error: 239 68 68; /* #EF4444 - Bright red */
+  --warning: 168 85 247; /* #A855F7 - Bright purple */
+  --primaryDark: 29 78 216; /* #1D4ED8 - Darker blue */
 }
 
 .dark {
