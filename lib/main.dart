@@ -9,7 +9,20 @@ import 'package:ai_swim_coach/utils/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  // Initialize Firebase with your configuration
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyAycu2X5nksgQebyZfo0292TZ9A85aEZ9Y",
+      authDomain: "swimstrokeai.firebaseapp.com",
+      projectId: "swimstrokeai",
+      storageBucket: "swimstrokeai.firebasestorage.app",
+      messagingSenderId: "456272994852",
+      appId: "1:456272994852:web:7ce2a3f2aa0ed02fd22eb1",
+      measurementId: "G-MWK04MJWT8",
+    ),
+  );
+  
   runApp(const AISwimCoachApp());
 }
 

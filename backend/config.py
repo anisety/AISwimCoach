@@ -11,7 +11,7 @@ class Config:
     PUTER_API_URL = "https://api.puter.com/v2/ai/chat"
     
     # Firebase Configuration
-    FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')
+    FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', 'swimstrokeai')
     FIREBASE_PRIVATE_KEY_ID = os.getenv('FIREBASE_PRIVATE_KEY_ID')
     FIREBASE_PRIVATE_KEY = os.getenv('FIREBASE_PRIVATE_KEY')
     FIREBASE_CLIENT_EMAIL = os.getenv('FIREBASE_CLIENT_EMAIL')
@@ -51,7 +51,6 @@ class Config:
         """Validate required configuration variables"""
         required_vars = [
             'PUTER_API_KEY',
-            'FIREBASE_PROJECT_ID',
         ]
         
         missing_vars = []

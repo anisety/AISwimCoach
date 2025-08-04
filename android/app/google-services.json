@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "456272994852",
+    "project_id": "swimstrokeai",
+    "storage_bucket": "swimstrokeai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456272994852:android:7ce2a3f2aa0ed02fd22eb1",
+        "android_client_info": {
+          "package_name": "com.aiswimcoach.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "456272994852-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAycu2X5nksgQebyZfo0292TZ9A85aEZ9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "456272994852-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+} 

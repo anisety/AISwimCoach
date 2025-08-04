@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAycu2X5nksgQebyZfo0292TZ9A85aEZ9Y</string>
+	<key>GCM_SENDER_ID</key>
+	<string>456272994852</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.aiswimcoach.app</string>
+	<key>PROJECT_ID</key>
+	<string>swimstrokeai</string>
+	<key>STORAGE_BUCKET</key>
+	<string>swimstrokeai.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<true></true>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:456272994852:ios:7ce2a3f2aa0ed02fd22eb1</string>
+	<key>DATABASE_URL</key>
+	<string>https://swimstrokeai-default-rtdb.firebaseio.com</string>
+	<key>GOOGLE_SIGN_IN_SERVER_CLIENT_ID</key>
+	<string>456272994852-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.456272994852-abcdefghijklmnopqrstuvwxyz123456</string>
+</dict>
+</plist> 
